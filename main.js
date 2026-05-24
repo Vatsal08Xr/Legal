@@ -67,21 +67,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // ──────────────────────────────────────────────────
   const observerOptions = {
     root: null,
-    rootMargin: '0px',
-    threshold: 0.12
+    rootMargin: '0px 0px -40px 0px',
+    threshold: 0.15
   };
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
+        entry.target.classList.add('is-visible');
         observer.unobserve(entry.target);
       }
     });
   }, observerOptions);
 
   // Observe all animation targets
-  document.querySelectorAll('.fade-up, .fade-up-scale, .fade-left, .fade-right, .reveal-line').forEach(el => {
+  document.querySelectorAll('.fade-up').forEach(el => {
     observer.observe(el);
   });
 
@@ -344,22 +344,22 @@ document.addEventListener('DOMContentLoaded', () => {
   pricingAmounts.forEach(el => counterObserver.observe(el));
 
   // ──────────────────────────────────────────────────
-  // 16. STAGGERED GRID ANIMATION
+  // 16. STICKY CALL CTA OBSERVER
   // ──────────────────────────────────────────────────
-  document.querySelectorAll('.services__grid, .pricing__grid, .team__grid, .advantage__grid').forEach(grid => {
-    const gridObserver = new IntersectionObserver((entries) => {
+  const stickyCta = document.getElementById('sticky-call-btn');
+  const contactSection = document.getElementById('contact');
+  if (stickyCta && contactSection) {
+    const contactObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const children = entry.target.querySelectorAll('.fade-up');
-          children.forEach((child, i) => {
-            child.style.transitionDelay = `${i * 120}ms`;
-          });
-          gridObserver.unobserve(entry.target);
+          stickyCta.classList.add('sticky-cta--hidden');
+        } else {
+          stickyCta.classList.remove('sticky-cta--hidden');
         }
       });
     }, { threshold: 0.05 });
-    gridObserver.observe(grid);
-  });
+    contactObserver.observe(contactSection);
+  }
 
   // ──────────────────────────────────────────────────
   // 17. TEXT SHIMMER ON HERO TITLE (on scroll past)
@@ -371,13 +371,16 @@ document.addEventListener('DOMContentLoaded', () => {
           // Apply shimmer to the italic span once visible
           const italicSpan = heroTitle.querySelector('.italic');
           if (italicSpan) {
-            italicSpan.classList.add('text-shimmer');
-            // Remove shimmer after a few cycles
-            setTimeout(() => italicSpan.classList.remove('text-shimmer'), 8000);
+            // Wait for the fade-up animation to complete (1s) to prevent Chromium paint bug
+            setTimeout(() => {
+              italicSpan.classList.add('text-shimmer');
+              // Remove shimmer after a few cycles
+              setTimeout(() => italicSpan.classList.remove('text-shimmer'), 8000);
+            }, 1000);
           }
         }
       });
-    }, { threshold: 0.5 });
+    }, { threshold: 0.15 });
     shimmerObserver.observe(heroTitle);
   }
 
