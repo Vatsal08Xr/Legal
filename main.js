@@ -447,4 +447,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // ──────────────────────────────────────────────────
   onScroll();
 
+  // ──────────────────────────────────────────────────
+  // 19. CTA WATERMARK GLOW — mouse tracking on text
+  // ──────────────────────────────────────────────────
+  const watermarkWrap = document.getElementById('cta-watermark-wrap');
+  const watermarkText = watermarkWrap ? watermarkWrap.querySelector('.cta-section__watermark') : null;
+  if (watermarkWrap && watermarkText) {
+    watermarkWrap.addEventListener('mousemove', (e) => {
+      const rect = watermarkText.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      watermarkText.style.setProperty('--tx', x + 'px');
+      watermarkText.style.setProperty('--ty', y + 'px');
+    });
+    watermarkWrap.addEventListener('mouseleave', () => {
+      // Move glow off-screen when not hovering
+      watermarkText.style.setProperty('--tx', '-9999px');
+      watermarkText.style.setProperty('--ty', '-9999px');
+    });
+  }
+
 });
