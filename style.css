@@ -372,7 +372,8 @@ body.cursor-hover .custom-cursor-follower {
 }
 
 .nav__link:hover,
-.nav__link.active {
+.nav__link.active,
+.nav__link--active {
   color: var(--gold-accent);
 }
 
@@ -388,7 +389,8 @@ body.cursor-hover .custom-cursor-follower {
 }
 
 .nav__link:hover::after,
-.nav__link.active::after {
+.nav__link.active::after,
+.nav__link--active::after {
   width: 100%;
 }
 
@@ -550,13 +552,14 @@ body.cursor-hover .custom-cursor-follower {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: 14px 32px;
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  border-radius: var(--radius-default);
+  border-radius: 100px;
   transition: all 0.5s ease;
   border: none;
   width: 100%;
@@ -1166,7 +1169,7 @@ body.cursor-hover .custom-cursor-follower {
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  border-radius: var(--radius-default);
+  border-radius: 100px;
   transition: all 0.4s ease;
   text-align: center;
   border: 1px solid rgba(212, 175, 55, 0.5);
@@ -1194,6 +1197,10 @@ body.cursor-hover .custom-cursor-follower {
 /* ---------- CONTACT SECTION ---------- */
 .contact {
   padding: var(--stack-xl) 0;
+}
+
+.contact--page {
+  padding-top: 140px;
 }
 
 .contact__grid {
@@ -1662,9 +1669,10 @@ textarea.form-input { resize: none; min-height: 80px; }
 
 /* ---------- CTA Section ---------- */
 .cta-section {
-  padding: var(--stack-xl) 0;
+  padding: var(--stack-xl) 0 0;
   position: relative;
   overflow: hidden;
+  background: #000;
 }
 
 .cta-section__glow {
@@ -1674,7 +1682,7 @@ textarea.form-input { resize: none; min-height: 80px; }
   transform: translate(-50%, -50%);
   width: 800px;
   height: 800px;
-  background: rgba(212, 175, 55, 0.05);
+  background: rgba(212, 175, 55, 0.04);
   border-radius: 50%;
   filter: blur(120px);
   pointer-events: none;
@@ -1703,6 +1711,50 @@ textarea.form-input { resize: none; min-height: 80px; }
   background: var(--gold-accent);
   color: var(--matte-black);
 }
+
+/* ---- CTA Watermark Text ---- */
+.cta-section__watermark-wrap {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  margin-top: 80px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.cta-section__watermark {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: clamp(96px, 16vw, 220px);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: transparent;
+  /* Base: nearly invisible text */
+  background: radial-gradient(
+    circle 75px at var(--tx, -9999px) var(--ty, -9999px),
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.18) 55%,
+    rgba(255, 255, 255, 0.06) 100%
+  ),
+  linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  user-select: none;
+  cursor: default;
+  position: relative;
+  z-index: 1;
+  /* Clip ~12% from bottom so text bleeds off edge */
+  transform: translateY(12%);
+}
+
 
 /* ---------- Section Utilities ---------- */
 .section-spacer { height: 1px; background: rgba(255, 255, 255, 0.05); }
