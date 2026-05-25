@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us | Legal Clinic — Consult with the Experts</title>
+  <meta name="description" content="Get in touch with Legal Clinic. Schedule a confidential medical negligence consultation with our experts.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Custom Cursor -->
+  <div class="custom-cursor" id="custom-cursor"></div>
+  <div class="custom-cursor-follower" id="custom-cursor-follower"></div>
+
+  <!-- ============ NAVIGATION ============ -->
+  <nav class="nav" id="main-nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo interactive">
+        <img src="logo.png" alt="Legal Clinic Logo" class="nav__logo-img">
+        <span>Legal Clinic</span>
+      </a>
+      <div class="nav__links">
+        <a href="index.html#about" class="nav__link interactive">About Us</a>
+        <a href="index.html#services" class="nav__link interactive">Services</a>
+        <a href="index.html#avenues" class="nav__link interactive">Avenues</a>
+        <a href="index.html#" class="nav__link interactive" title="Blog coming soon">Blogs</a>
+        <a href="index.html#pricing" class="nav__link interactive">Pricing</a>
+        <a href="contact.html" class="nav__link interactive nav__link--active">Contact Us</a>
+      </div>
+      <button class="nav__mobile-toggle interactive" id="mobile-toggle" aria-label="Open menu">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <button class="mobile-menu__close interactive" id="mobile-close" aria-label="Close menu">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <a href="index.html#about" class="mobile-menu__link interactive">About Us</a>
+    <a href="index.html#services" class="mobile-menu__link interactive">Services</a>
+    <a href="index.html#avenues" class="mobile-menu__link interactive">Avenues</a>
+    <a href="index.html#" class="mobile-menu__link interactive" title="Blog coming soon">Blogs</a>
+    <a href="index.html#pricing" class="mobile-menu__link interactive">Pricing</a>
+    <a href="contact.html" class="mobile-menu__link interactive">Contact Us</a>
+  </div>
+
+  <!-- ============ CONTACT SECTION ============ -->
+  <section class="contact contact--page" id="contact">
+    <div class="container">
+      <!-- Hero for Contact -->
+      <div class="fade-up" style="text-align:center;margin-bottom:64px;padding-top:120px;">
+        <span class="font-label-md text-gold" style="display:block;margin-bottom:16px;">Get In Touch</span>
+        <h1 class="font-headline-xl text-off-white">Consult with the Experts</h1>
+        <p class="font-body-lg text-muted" style="max-width:640px;margin:16px auto 0;">Navigating the intersection of medicine and law with precision and discretion. Reach out to schedule a confidential review.</p>
+      </div>
+
+      <div class="contact__grid">
+        <!-- Left — Info -->
+        <div class="contact__info">
+          <h2 class="font-headline-lg text-off-white">Legal Clinic</h2>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <!-- Location -->
+            <div class="contact-card glass-panel interactive">
+              <div class="contact-card__icon">
+                <span class="material-symbols-outlined">location_on</span>
+              </div>
+              <div>
+                <h3 class="font-label-md text-gold contact-card__label">Bangalore Headquarters</h3>
+                <p class="font-body-md contact-card__text">#19, 4th Floor, Grand Majestic Mall, Gandhinagar, Bangalore-560009</p>
+              </div>
+            </div>
+            <!-- Phone -->
+            <div class="contact-card glass-panel interactive">
+              <div class="contact-card__icon">
+                <span class="material-symbols-outlined">call</span>
+              </div>
+              <div>
+                <h3 class="font-label-md text-gold contact-card__label">Direct Line</h3>
+                <p class="font-body-md contact-card__text">080 4589 0012</p>
+                <p class="font-body-md contact-card__text">+91 86185 12581</p>
+              </div>
+            </div>
+            <!-- Email -->
+            <div class="contact-card glass-panel interactive">
+              <div class="contact-card__icon">
+                <span class="material-symbols-outlined">mail</span>
+              </div>
+              <div>
+                <h3 class="font-label-md text-gold contact-card__label">Digital Correspondence</h3>
+                <p class="font-body-md contact-card__text">enquiries@legalclinic.org.in</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spacer -->
+        <div></div>
+
+        <!-- Right — Form -->
+        <div class="contact__form glass-panel">
+          <h2 class="font-headline-sm text-off-white">Secure Inquiry Form</h2>
+          <form id="contact-form" action="https://formspree.io/f/mnjrbozk" method="POST">
+            <div class="form-group">
+              <input type="text" id="contact-name" name="name" class="form-input" placeholder=" " required>
+              <label for="contact-name" class="form-label">Full Name</label>
+            </div>
+            <div class="form-group">
+              <input type="email" id="contact-email" name="email" class="form-input" placeholder=" " required>
+              <label for="contact-email" class="form-label">Email Address</label>
+            </div>
+            <div class="form-group">
+              <input type="tel" id="contact-phone" name="phone" class="form-input" placeholder=" ">
+              <label for="contact-phone" class="form-label">Phone Number (Optional)</label>
+            </div>
+            <div class="form-group">
+              <div class="form-select-wrapper">
+                <select id="inquiry-type" name="inquiry-type" class="form-select">
+                  <option value="">Select Area of Interest</option>
+                  <option value="negligence">Medical Negligence Review</option>
+                  <option value="injury">Personal Injury Assessment</option>
+                  <option value="insurance">Insurance Claims Consultation</option>
+                  <option value="expert">Expert Witness Services</option>
+                  <option value="other">General Inquiry</option>
+                </select>
+                <span class="material-symbols-outlined">expand_more</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <textarea id="contact-message" name="message" class="form-input" rows="4" placeholder=" " required></textarea>
+              <label for="contact-message" class="form-label">Message Summary</label>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full interactive" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <span>Submit Inquiry</span>
+              <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
+            </button>
+            <p class="form-note">All communications are subject to strict legal privilege and confidentiality.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Map Divider -->
+  <div class="map-divider">
+    <iframe class="map-divider__iframe" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.8288599427387!2d77.5736059!3d12.9775192!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1700789ba485%3A0x39e1ebce1064713f!2sLegal%20Clinic!5e0!3m2!1sen!2sin!4v1716584284562!5m2!1sen!2sin" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="map-divider__badge">
+      <a href="https://maps.app.goo.gl/5sUKgVq5wRdpLVjE6" target="_blank" class="map-divider__pill glass-panel interactive">
+        <span class="material-symbols-outlined text-gold">open_in_new</span>
+        <span class="font-label-md text-off-white">Open in Google Maps</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer__grid footer__grid--reversed">
+        <!-- Left: Link Columns -->
+        <div class="footer__columns footer__columns--left">
+          <div class="footer__column">
+            <h4 class="font-label-md footer__column-title">Navigation</h4>
+            <a href="index.html#about" class="footer__link interactive">About Us</a>
+            <a href="index.html#services" class="footer__link interactive">Services</a>
+            <a href="index.html#avenues" class="footer__link interactive">Avenues</a>
+            <a href="index.html#pricing" class="footer__link interactive">Pricing</a>
+            <a href="contact.html" class="footer__link interactive">Contact</a>
+            <a href="#" class="footer__link interactive">Careers</a>
+          </div>
+          <div class="footer__column">
+            <h4 class="font-label-md footer__column-title">Legal</h4>
+            <a href="#" class="footer__link interactive">Privacy Policy</a>
+            <a href="#" class="footer__link interactive">Terms of Service</a>
+            <a href="#" class="footer__link interactive">Disclaimer</a>
+          </div>
+          <div class="footer__column">
+            <h4 class="font-label-md footer__column-title">Connect</h4>
+            <a href="mailto:enquiries@legalclinic.org.in" class="footer__link interactive">Email Us</a>
+            <a href="tel:+918618512581" class="footer__link interactive">Call Us</a>
+            <a href="#" class="footer__link interactive">LinkedIn</a>
+          </div>
+        </div>
+        <!-- Right: Brand -->
+        <div class="footer__brand footer__brand--right">
+          <a href="index.html" class="footer__logo interactive">
+            <img src="logo.png" alt="Legal Clinic Logo" class="footer__logo-img">
+            <span>Legal Clinic</span>
+          </a>
+          <p class="footer__brand-desc font-body-md">Medical Negligence Consultancy providing expert navigation at the intersection of healthcare and jurisprudence.</p>
+          <div class="footer__socials" style="margin-top:20px;">
+            <a href="#" class="footer__social-link interactive" aria-label="LinkedIn">
+              <span class="material-symbols-outlined" style="font-size:18px;">share</span>
+            </a>
+            <a href="mailto:enquiries@legalclinic.org.in" class="footer__social-link interactive" aria-label="Email">
+              <span class="material-symbols-outlined" style="font-size:18px;">mail</span>
+            </a>
+            <a href="tel:+918618512581" class="footer__social-link interactive" aria-label="Phone">
+              <span class="material-symbols-outlined" style="font-size:18px;">call</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copyright">© 2026 Legal Clinic Medical Negligence Consultancy. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ JAVASCRIPT ============ -->
+  <script src="main.js"></script>
+</body>
+</html>
