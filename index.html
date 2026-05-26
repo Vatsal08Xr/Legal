@@ -9,8 +9,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js, GSAP, ScrollTrigger — local copies, no internet needed -->
+  <script src="libs/three.min.js"></script>
+  <script src="libs/gsap.min.js"></script>
+  <script src="libs/ScrollTrigger.min.js"></script>
 </head>
 <body>
+
+  <!-- 3D WebGL Canvas (fixed, behind everything) -->
+  <canvas id="three-canvas"></canvas>
 
   <!-- Custom Cursor -->
   <div class="custom-cursor" id="custom-cursor"></div>
@@ -54,7 +62,7 @@
   <section class="hero" id="hero">
     <div class="hero__bg">
       <div class="cinematic-mask" style="width:100%;height:100%;">
-        <img id="hero-bg" src="https://legalclinic.org.in/assets/images/banner.jpg" alt="Medical negligence clinic banner background with scale of justice and stethoscope">
+
       </div>
     </div>
     <div class="hero__overlay"></div>
@@ -222,7 +230,7 @@
       </div>
       <div class="services__grid">
         <!-- Service 1 -->
-        <div class="service-card glass-panel fade-up interactive" style="transition-delay:100ms;">
+        <div class="service-card glass-panel fade-up interactive" data-service="negligence" style="transition-delay:100ms;">
           <div class="service-card__icon">
             <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">stethoscope</span>
           </div>
@@ -262,7 +270,7 @@
           <p class="font-body-md service-card__desc">Sourcing and preparation of credentialed medical experts for deposition and trial testimony.</p>
         </div>
         <!-- Service 6 -->
-        <div class="service-card glass-panel fade-up interactive" style="transition-delay:600ms;">
+        <div class="service-card glass-panel fade-up interactive" data-service="forensic" style="transition-delay:600ms;">
           <div class="service-card__icon">
             <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">biotech</span>
           </div>
@@ -570,5 +578,7 @@
 
   <!-- ============ JAVASCRIPT ============ -->
   <script src="main.js"></script>
+  <!-- 3D Scene (plain script, uses THREE/gsap globals) -->
+  <script src="three-scene.js"></script>
 </body>
 </html>
