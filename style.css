@@ -75,6 +75,10 @@ body {
   animation: pageFadeIn 1.2s ease-out forwards;
 }
 
+body.contact-body {
+  background-color: var(--matte-black);
+}
+
 /* ── Three.js canvas — fixed behind everything ── */
 #three-canvas {
   position: fixed;
