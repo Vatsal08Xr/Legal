@@ -65,7 +65,7 @@ html {
 }
 
 body {
-  background-color: var(--matte-black);
+  background-color: #04040a; /* fallback — Three.js canvas renders on top */
   color: var(--off-white);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 16px;
@@ -74,6 +74,35 @@ body {
   cursor: none;
   animation: pageFadeIn 1.2s ease-out forwards;
 }
+
+/* ── Three.js canvas — fixed behind everything ── */
+#three-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
+
+/* ── Ensure all content stacks above canvas ── */
+nav, .mobile-menu, .hero, .ethos, .team, .advantage,
+.services, .avenues, .pricing, .cta-section,
+.map-divider, footer, .scroll-progress, .scroll-top,
+.custom-cursor, .custom-cursor-follower {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Semi-transparent section backgrounds (let 3D bleed through) ── */
+.ethos     { background: rgba(4, 4, 10, 0.78) !important; }
+.team      { background: rgba(4, 4, 10, 0.78) !important; }
+.advantage { background: rgba(4, 4, 10, 0.82) !important; }
+.services  { background: rgba(4, 4, 10, 0.80) !important; }
+.avenues   { background: rgba(4, 4, 10, 0.82) !important; }
+.pricing   { background: rgba(4, 4, 10, 0.80) !important; }
+
 
 @media (max-width: 768px) {
   body { cursor: auto; }
