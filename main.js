@@ -5,6 +5,36 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ──────────────────────────────────────────────────
+  // 0. THEME TOGGLE
+  // ──────────────────────────────────────────────────
+  const root       = document.documentElement;
+  const toggleBtns = document.querySelectorAll('#theme-toggle, #theme-toggle-mobile');
+
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    localStorage.setItem('lc-theme', theme);
+    // Notify three-scene.js to update canvas background
+    window.dispatchEvent(new CustomEvent('themechange', { detail: theme }));
+  }
+
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+    });
+  });
+
+  // Sync with system preference changes (user changes OS setting)
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      // Only follow system if user hasn't manually chosen
+      if (!localStorage.getItem('lc-theme')) {
+        applyTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+  }
+
+  // ──────────────────────────────────────────────────
   // 1. CUSTOM CURSOR
   // ──────────────────────────────────────────────────
   const cursor = document.getElementById('custom-cursor');
@@ -218,7 +248,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectEl = document.getElementById('inquiry-type');
   if (selectEl) {
     selectEl.addEventListener('change', function() {
-      this.style.color = this.value !== '' ? '#F5F5F7' : '#86868B';
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      this.style.color = this.value !== ''
+        ? (isDark ? '#e2e2e4' : '#1C1C1E')
+        : (isDark ? '#86868B' : '#6C6C70');
     });
   }
 

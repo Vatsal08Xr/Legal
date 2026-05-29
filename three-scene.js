@@ -27,10 +27,21 @@ document.addEventListener('DOMContentLoaded', function () {
   const LERP_FAST = 0.09;
 
   const COL = {
-    bg  : 0x04040a,
-    gold: 0xd4af37,
-    dark: 0x0d0d1a,
+    goldDark   : 0xd4af37,    /* bright gold — glows on dark bg */
+    goldLight  : 0x2C1C06,    /* very dark amber — sharp contrast on warm white */
+    bgDark     : 0x04040a,
+    bgLight    : 0xF2EFE9,
+    planeDark  : 0x0d0d1a,
+    planeLight : 0xC8BFA8,    /* warm taupe — visible on light bg */
+    accentLight: 0x1A2A4A,   /* deep navy — used for wireframe in light mode */
   };
+
+  /* Detect initial theme */
+  function isDarkTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+  }
+  function getGold() { return isDarkTheme() ? COL.goldDark : COL.goldLight; }
+  function getBg()   { return isDarkTheme() ? COL.bgDark   : COL.bgLight; }
 
   /* ═══════════════════════════════════════════════════════════
      2. RENDERER + SCENE + CAMERA
@@ -51,7 +62,12 @@ document.addEventListener('DOMContentLoaded', function () {
   renderer.toneMappingExposure = 1.15;
 
   const scene  = new THREE.Scene();
-  scene.background = new THREE.Color(COL.bg);
+  scene.background = new THREE.Color(getBg());
+
+  /* Theme-aware opacity/emissive targets */
+  var TARGET_PARTICLE_OPACITY   = isDarkTheme() ? 0.82 : 0.92;
+  var TARGET_EMISSIVE_INTENSITY = isDarkTheme() ? 0.65 : 0.02;
+  var TARGET_SPHERE_OPACITY     = isDarkTheme() ? 0.22 : 0.50;
 
   const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 100);
   camera.position.set(0, 0, 5.5);
@@ -79,13 +95,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const sphereGroup = new THREE.Group();
   scene.add(sphereGroup);
 
-  /* Glass sphere — r128 compatible (no transmission API) */
+  /* Glass sphere — r128 compatible */
   const glassMat = new THREE.MeshPhysicalMaterial({
-    color       : new THREE.Color(COL.gold),
+    color       : new THREE.Color(getGold()),
     metalness   : 0.0,
     roughness   : 0.05,
     transparent : true,
-    opacity     : 0.22,
+    opacity     : TARGET_SPHERE_OPACITY,
     side        : THREE.DoubleSide,
     reflectivity: 1.0,
   });
@@ -98,21 +114,22 @@ document.addEventListener('DOMContentLoaded', function () {
   const innerCore = new THREE.Mesh(
     new THREE.SphereGeometry(0.45, 32, 32),
     new THREE.MeshBasicMaterial({
-      color      : new THREE.Color(COL.gold),
+      color      : new THREE.Color(getGold()),
       transparent: true,
-      opacity    : 0.20,
+      opacity    : isDarkTheme() ? 0.20 : 0.55,
     })
   );
   sphereGroup.add(innerCore);
+  var innerCoreMat = innerCore.material;
 
   /* ═══════════════════════════════════════════════════════════
      5. GEODESIC WIREFRAME  (Mission)
   ═══════════════════════════════════════════════════════════ */
   const wireframeMat = new THREE.MeshStandardMaterial({
-    color            : new THREE.Color(COL.gold),
+    color            : new THREE.Color(isDarkTheme() ? getGold() : COL.accentLight),
     wireframe        : true,
-    emissive         : new THREE.Color(COL.gold),
-    emissiveIntensity: 0.06,
+    emissive         : new THREE.Color(isDarkTheme() ? getGold() : COL.accentLight),
+    emissiveIntensity: isDarkTheme() ? 0.06 : 0.01,
     transparent      : true,
     opacity          : 0.0,
   });
@@ -130,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const planeBasePos = Float32Array.from(planeGeo.attributes.position.array);
 
   const planeMat = new THREE.MeshStandardMaterial({
-    color      : new THREE.Color(COL.dark),
+    color      : new THREE.Color(isDarkTheme() ? COL.planeDark : COL.planeLight),
     metalness  : 0.88,
     roughness  : 0.12,
     transparent: true,
@@ -144,9 +161,9 @@ document.addEventListener('DOMContentLoaded', function () {
      7. PARTICLE INSTANCEDMESH
   ═══════════════════════════════════════════════════════════ */
   const particleMat = new THREE.MeshStandardMaterial({
-    color            : new THREE.Color(COL.gold),
-    emissive         : new THREE.Color(COL.gold),
-    emissiveIntensity: 0.65,
+    color            : new THREE.Color(getGold()),
+    emissive         : new THREE.Color(getGold()),
+    emissiveIntensity: TARGET_EMISSIVE_INTENSITY,
     roughness        : 0.2,
     metalness        : 0.9,
     transparent      : true,
@@ -316,62 +333,103 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ═══════════════════════════════════════════════════════════
      9. STATE MACHINE
   ═══════════════════════════════════════════════════════════ */
-  var currentState  = 'hero';
-  var shatterTimer  = null;
+  var currentState = 'hero';
+  var shatterTimer = null;
 
   function setTarget(cloud, speed) {
     targetPos.set(cloud);
     if (speed !== undefined) lerpSpeed = speed;
   }
 
+  /* Kill all in-flight tweens before any transition to prevent race conditions */
+  function killAllTweens() {
+    if (!_gsap) return;
+    _gsap.killTweensOf(sphereGroup.scale);
+    _gsap.killTweensOf(glassMat);
+    _gsap.killTweensOf(innerCoreMat);
+    _gsap.killTweensOf(wireframeMat);
+    _gsap.killTweensOf(planeMat);
+    _gsap.killTweensOf(particleMat);
+    _gsap.killTweensOf(camera.position);
+  }
+
   function transitionTo(state) {
     if (currentState === state) return;
+
+    /* Always cancel the shatter timer and kill in-flight tweens first */
     if (shatterTimer) { clearTimeout(shatterTimer); shatterTimer = null; }
+    killAllTweens();
+
     currentState = state;
+
+    /* Resolve particle opacity for the current theme */
+    var pOpacity = TARGET_PARTICLE_OPACITY;
 
     switch (state) {
 
       case 'hero':
         setTarget(cloudSphere, LERP_SLOW);
+        /* Make sphere visible and reset scale BEFORE animating
+           so there is never a frame where it stays invisible */
         sphereGroup.visible = true;
+        sphereGroup.scale.set(
+          sphereGroup.scale.x || 0.001,
+          sphereGroup.scale.y || 0.001,
+          sphereGroup.scale.z || 0.001
+        );
         _gsap.to(sphereGroup.scale, { x:1, y:1, z:1, duration:1.4, ease:'back.out(1.7)' });
-        _gsap.to(wireframeMat,     { opacity:0, emissiveIntensity:.06, duration:.8 });
-        _gsap.to(planeMat,         { opacity:0, duration:.8 });
-        _gsap.to(particleMat,      { opacity:.82, emissiveIntensity:.65, duration:1.2 });
-        _gsap.to(camera.position,  { z:5.5, y:0, duration:1.8, ease:'power2.inOut' });
+        _gsap.to(wireframeMat,     { opacity:0,   duration:.6 });
+        _gsap.to(planeMat,         { opacity:0,   duration:.6 });
+        _gsap.to(particleMat,      { opacity: pOpacity, emissiveIntensity: TARGET_EMISSIVE_INTENSITY, duration:1.0 });
+        _gsap.to(camera.position,  { z:5.5, y:0, duration:1.6, ease:'power2.inOut' });
         break;
 
       case 'mission':
         setTarget(cloudIco, LERP_SLOW);
-        _gsap.to(sphereGroup.scale, {
-          x:0, y:0, z:0, duration:.85, ease:'power2.in',
-          onComplete: function () { sphereGroup.visible = false; }
-        });
+        /* Scale sphere down; only hide it after the tween completes.
+           We capture currentState in a closure so if state changes
+           before completion we don't hide a sphere that should be showing. */
+        (function (capturedState) {
+          _gsap.to(sphereGroup.scale, {
+            x:0, y:0, z:0, duration:.85, ease:'power2.in',
+            onComplete: function () {
+              /* Only hide if we are still in this state */
+              if (currentState === capturedState) {
+                sphereGroup.visible = false;
+              }
+            }
+          });
+        }('mission'));
         _gsap.to(wireframeMat,    { opacity:.65, duration:1.4 });
         _gsap.to(planeMat,        { opacity:0,   duration:.6 });
-        _gsap.to(particleMat,     { opacity:.72, emissiveIntensity:.55, duration:1 });
-        _gsap.to(camera.position, { z:7, y:0, duration:2, ease:'power2.inOut' });
+        _gsap.to(particleMat,     { opacity: pOpacity * 0.88, emissiveIntensity: TARGET_EMISSIVE_INTENSITY * 0.85, duration:1 });
+        _gsap.to(camera.position, { z:7,   y:0,   duration:2, ease:'power2.inOut' });
         break;
 
       case 'services-shatter':
         setTarget(cloudShatter, LERP_FAST);
-        _gsap.to(particleMat,     { opacity:.45, emissiveIntensity:.3, duration:.35 });
-        _gsap.to(wireframeMat,    { opacity:0,   duration:.5 });
-        shatterTimer = setTimeout(function () { transitionTo('services'); }, 650);
+        _gsap.to(particleMat, { opacity: pOpacity * 0.55, emissiveIntensity: TARGET_EMISSIVE_INTENSITY * 0.5, duration:.35 });
+        _gsap.to(wireframeMat, { opacity:0, duration:.5 });
+        /* Capture state so timer doesn't fire after a quick scroll-back */
+        (function (capturedState) {
+          shatterTimer = setTimeout(function () {
+            if (currentState === capturedState) transitionTo('services');
+          }, 650);
+        }('services-shatter'));
         break;
 
       case 'services':
         setTarget(cloudSwarm, LERP_MID);
-        _gsap.to(particleMat,     { opacity:.78, emissiveIntensity:.6, duration:1.1 });
-        _gsap.to(planeMat,        { opacity:0,   duration:.6 });
-        _gsap.to(camera.position, { z:6, y:0, duration:1.5, ease:'power2.inOut' });
+        _gsap.to(particleMat,     { opacity: pOpacity * 0.95, emissiveIntensity: TARGET_EMISSIVE_INTENSITY * 0.92, duration:1.1 });
+        _gsap.to(planeMat,        { opacity:0,  duration:.6 });
+        _gsap.to(camera.position, { z:6,  y:0,  duration:1.5, ease:'power2.inOut' });
         break;
 
       case 'pricing':
         setTarget(cloudPlane, LERP_SLOW);
-        _gsap.to(particleMat,     { opacity:.38, emissiveIntensity:.22, duration:1.6 });
+        _gsap.to(particleMat,     { opacity: pOpacity * 0.47, emissiveIntensity: TARGET_EMISSIVE_INTENSITY * 0.34, duration:1.6 });
         _gsap.to(planeMat,        { opacity:.88, duration:2.2, ease:'power2.out' });
-        _gsap.to(camera.position, { z:8, y:1.8, duration:2.2, ease:'power2.inOut' });
+        _gsap.to(camera.position, { z:8,  y:1.8, duration:2.2, ease:'power2.inOut' });
         break;
     }
   }
@@ -381,20 +439,20 @@ document.addEventListener('DOMContentLoaded', function () {
   ═══════════════════════════════════════════════════════════ */
   if (_gsap && _ST) {
     _ST.create({
-      trigger: '#about',
-      start  : 'top 68%',
+      trigger    : '#about',
+      start      : 'top 68%',
       onEnter    : function () { transitionTo('mission'); },
       onLeaveBack: function () { transitionTo('hero'); },
     });
     _ST.create({
-      trigger: '#services',
-      start  : 'top 68%',
+      trigger    : '#services',
+      start      : 'top 68%',
       onEnter    : function () { transitionTo('services-shatter'); },
       onLeaveBack: function () { transitionTo('mission'); },
     });
     _ST.create({
-      trigger: '#pricing',
-      start  : 'top 68%',
+      trigger    : '#pricing',
+      start      : 'top 68%',
       onEnter    : function () { transitionTo('pricing'); },
       onLeaveBack: function () { transitionTo('services'); },
     });
@@ -561,11 +619,81 @@ document.addEventListener('DOMContentLoaded', function () {
   }());
 
   /* Fade particles in */
+  TARGET_PARTICLE_OPACITY   = isDarkTheme() ? 0.82 : 0.92;
+  TARGET_EMISSIVE_INTENSITY = isDarkTheme() ? 0.65 : 0.02;
+  TARGET_SPHERE_OPACITY     = isDarkTheme() ? 0.22 : 0.50;
   if (_gsap) {
-    _gsap.to(particleMat, { opacity:.82, duration:2.2, delay:.5, ease:'power2.out' });
+    _gsap.to(particleMat, { opacity: TARGET_PARTICLE_OPACITY, duration:2.2, delay:.5, ease:'power2.out' });
   } else {
-    particleMat.opacity = .82;
+    particleMat.opacity = TARGET_PARTICLE_OPACITY;
   }
+
+  /* ═══════════════════════════════════════════════════════════
+     17. THEME CHANGE HANDLER
+  ═══════════════════════════════════════════════════════════ */
+  window.addEventListener('themechange', function (e) {
+    var dark  = (e.detail === 'dark');
+    var gold  = dark ? COL.goldDark   : COL.goldLight;
+    var wire  = dark ? COL.goldDark   : COL.accentLight;  /* navy wireframe in light */
+    var bg    = dark ? COL.bgDark     : COL.bgLight;
+    var plane = dark ? COL.planeDark  : COL.planeLight;
+    TARGET_PARTICLE_OPACITY   = dark ? 0.82 : 0.92;
+    TARGET_EMISSIVE_INTENSITY = dark ? 0.65 : 0.02;
+    TARGET_SPHERE_OPACITY     = dark ? 0.22 : 0.50;
+
+    /* Scene background — animate via tween object */
+    var bgCol    = { r: scene.background.r, g: scene.background.g, b: scene.background.b };
+    var targetBg = new THREE.Color(bg);
+    if (_gsap) {
+      _gsap.to(bgCol, {
+        r: targetBg.r, g: targetBg.g, b: targetBg.b,
+        duration: 0.8, ease: 'power2.inOut',
+        onUpdate: function () { scene.background.setRGB(bgCol.r, bgCol.g, bgCol.b); }
+      });
+    } else {
+      scene.background.set(bg);
+    }
+
+    /* Sphere — colour + opacity */
+    glassMat.color.set(gold);
+    innerCoreMat.color.set(gold);
+    if (_gsap) {
+      _gsap.to(glassMat,     { opacity: TARGET_SPHERE_OPACITY, duration: 0.8 });
+      _gsap.to(innerCoreMat, { opacity: dark ? 0.20 : 0.55,   duration: 0.8 });
+    } else {
+      glassMat.opacity     = TARGET_SPHERE_OPACITY;
+      innerCoreMat.opacity = dark ? 0.20 : 0.55;
+    }
+
+    /* Wireframe — navy in light, gold in dark */
+    wireframeMat.color.set(wire);
+    wireframeMat.emissive.set(wire);
+    wireframeMat.emissiveIntensity = dark ? 0.06 : 0.01;
+
+    /* Particles */
+    particleMat.color.set(gold);
+    particleMat.emissive.set(gold);
+    planeMat.color.set(plane);
+
+    /* Emissive intensity + opacity (tweened) */
+    if (_gsap) {
+      _gsap.to(particleMat, {
+        emissiveIntensity: TARGET_EMISSIVE_INTENSITY,
+        opacity:           TARGET_PARTICLE_OPACITY,
+        duration: 0.8
+      });
+    } else {
+      particleMat.emissiveIntensity = TARGET_EMISSIVE_INTENSITY;
+      particleMat.opacity           = TARGET_PARTICLE_OPACITY;
+    }
+
+    /* Ambient light — brighter in light mode to reduce harsh shadows */
+    scene.children.forEach(function(child) {
+      if (child.isAmbientLight) {
+        child.intensity = dark ? 0.12 : 0.45;
+      }
+    });
+  });
 
   tick();
 

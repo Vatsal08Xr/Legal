@@ -1,11 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact Us | Legal Clinic — Consult with the Experts</title>
   <meta name="description" content="Get in touch with Legal Clinic. Schedule a confidential medical negligence consultation with our experts.">
   <link rel="stylesheet" href="style.css">
+
+  <!-- Anti-FOUC: apply saved theme before paint -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('lc-theme');
+      if (!t) {
+        t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 </head>
 <body class="contact-body">
 
@@ -27,6 +38,14 @@
         <a href="index.html#" class="nav__link interactive" title="Blog coming soon">Blogs</a>
         <a href="index.html#pricing" class="nav__link interactive">Pricing</a>
         <a href="contact.html" class="nav__link interactive nav__link--active">Contact Us</a>
+        <!-- Theme Toggle -->
+        <button class="theme-toggle interactive" id="theme-toggle" aria-label="Toggle light/dark theme">
+          <span class="theme-toggle__icon theme-toggle__sun" aria-hidden="true">&#9728;</span>
+          <span class="theme-toggle__track" aria-hidden="true">
+            <span class="theme-toggle__thumb"></span>
+          </span>
+          <span class="theme-toggle__icon theme-toggle__moon" aria-hidden="true">&#9790;</span>
+        </button>
       </div>
       <button class="nav__mobile-toggle interactive" id="mobile-toggle" aria-label="Open menu">
         <span class="material-symbols-outlined">menu</span>
@@ -45,6 +64,16 @@
     <a href="index.html#" class="mobile-menu__link interactive" title="Blog coming soon">Blogs</a>
     <a href="index.html#pricing" class="mobile-menu__link interactive">Pricing</a>
     <a href="contact.html" class="mobile-menu__link interactive">Contact Us</a>
+    <!-- Mobile Theme Toggle -->
+    <div class="mobile-theme-toggle-row">
+      <span>&#9728; Light</span>
+      <button class="theme-toggle interactive" id="theme-toggle-mobile" aria-label="Toggle theme">
+        <span class="theme-toggle__track">
+          <span class="theme-toggle__thumb"></span>
+        </span>
+      </button>
+      <span>Dark &#9790;</span>
+    </div>
   </div>
 
   <!-- ============ CONTACT SECTION ============ -->
