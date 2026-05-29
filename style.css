@@ -893,7 +893,7 @@ body.cursor-hover .custom-cursor-follower {
 
 .ethos__pills { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 
-.ethos__image-wrapper { position: relative; width: 100%; max-width: 480px; margin: 0 auto; }
+.ethos__image-wrapper { position: relative; width: 100%; max-width: 528px; margin: 0 auto; align-self: center; }
 .ethos__image {
   width: 100%; height: auto;
   border-radius: var(--radius-xl);
